@@ -269,15 +269,11 @@
                 // Устанавливаем фоновое изображение для сердца
                 heart.style.backgroundImage = `url('${config.heartImage}')`;
 
-                // Проверяем, можно ли открыть это сердечко
-                if (i <= currentDay && now < birthday) {
-                    heart.addEventListener('click', () => openGift(i));
-                } else if (now >= birthday) {
-                    // Если ДР уже наступило, открываем все
-                    heart.addEventListener('click', () => openGift(i));
-                } else {
-                    heart.style.cursor = 'not-allowed';
-                    heart.style.opacity = '0.5';
+// Устанавливаем фоновое изображение для сердца
+heart.style.backgroundImage = `url('${config.heartImage}')`;
+
+// ВРЕМЕННО: разрешаем открывать все сердечки
+heart.addEventListener('click', () => openGift(i));
                 }
         
 
