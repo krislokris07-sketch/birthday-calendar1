@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Календарь ожидания твоего Дня Рождения!</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Arial', sans-serif;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+            /* Фоновое изображение */
+            background: url('фон_основной.jpg') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .container {
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 30px;
+            border-radius: 20px;
+            /* Плашка */
+            background-image: url('плашка.png');
+            background-size: cover;
+            background-position: center;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+            max-width: 800px;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        #countdown {
+            font-size: 1.8em;
+            margin-bottom: 40px;
+            font-weight: bold;
+        }
+
+        .hearts-container {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .heart {
+            width: 120px;
+            height: 120px;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.3s ease;
+            /* Сердечко */
+            background: url('сердечко.png') no-repeat center center;
+            background-size: contain;
+        }
+
+        .heart:hover {
+            transform: scale(1.1);
+        }
+
+        .heart-number {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2em;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        /* Стили для модального окна */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            color: #333;
+            margin: 15% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 80%;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: black;
+        }
+
+        .gift-title {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            color: #e91e63;
+        }
+
+        .gift-description {
+            font-size: 1.1em;
+            line-height: 1.5;
+        }
+
+        /* Стиль для открытого сердца */
+        .heart.opened {
+            opacity: 0.7;
+            filter: brightness(0.8);
+        }
+        .heart.opened .heart-number {
+            text-decoration: line-through;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>До твоего Дня Рождения осталось...</h1>
+        <div id="countdown">Загрузка...</div>
+
+        <div class="hearts-container">
+            <!-- 7 сердечек будут сгенерированы скриптом -->
+        </div>
+    </div>
+
+    <!-- Модальное окно для показа подарка -->
+    <div id="giftModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 class="gift-title">Подарок дня <span id="giftDay"></span></h2>
+            <p class="gift-description" id="giftText"></p>
+        </div>
+    </div>
+
+    <script>
+        // КОНФИГУРАЦИЯ
+        const config = {
+            // ДАТА ДНЯ РОЖДЕНИЯ - 24.12.2025
+            birthdayDate: '2025-12-24',
+            // ПУТИ К ИЗОБРАЖЕНИЯМ - используйте только названия файлов!
+            backgroundImage: 'фон_основной.jpg',
+            plaqueImage: 'плашка.png',
+            heartImage: 'сердечко.png',
+            // Описания подарков для каждого из 7 дней
+            gifts: [
+                "Ищи свой подарок под подушкой! <3 Там ты найдешь что-то, что согреет твои сны.",
+                "Загляни в самый верхний шкаф на кухне. Там ждет тебя маленькая сладкая радость!",
+                "Проверь карман своей зимней куртки. Возможно, там завалялось что-то интересное!",
+                "Сегодняшний сюрприз ждет тебя в тумбочке рядом с кроватью. Он поможет настроиться на праздник!",
+                "Посмотри в ящике с носками. Да-да, именно там! Это будет нечто... стильное.",
+                "Твой подарок сегодня там, где ты хранишь чай или кофе. Идеально для вечернего отдыха!",
+                "САМЫЙ ГЛАВНЫЙ ПОДАРОК! Загляни под диван в гостиной. С Днем Рождения, моя любовь!"
+            ]
+        };
+
+        // Элементы DOM
+        const countdownElement = document.getElementById('countdown');
+        const heartsContainer = document.querySelector('.hearts-container');
+        const modal = document.getElementById('giftModal');
+        const giftDayElement = document.getElementById('giftDay');
+        const giftTextElement = document.getElementById('giftText');
+        const closeBtn = document.querySelector('.close');
+
+        // Рассчитываем дату начала обратного отсчета (за 7 дней до ДР)
+        const birthday = new Date(config.birthdayDate);
+        const startDate = new Date(birthday);
+        startDate.setDate(birthday.getDate() - 7);
+
+        // Устанавливаем фоновые изображения
+        document.body.style.backgroundImage = `url('${config.backgroundImage}')`;
+        document.querySelector('.container').style.backgroundImage = `url('${config.plaqueImage}')`;
+
+        // Функция для обновления обратного отсчета
+        function updateCountdown() {
+            const now = new Date();
+            const timeDiff = birthday - now;
+
+            if (timeDiff <= 0) {
+                countdownElement.textContent = "С ДНЕМ РОЖДЕНИЯ! 🎉";
+                // Показываем все сердечки как открытые
+                const hearts = document.querySelectorAll('.heart');
+                hearts.forEach(heart => {
+                    heart.classList.add('opened');
+                    heart.style.cursor = 'pointer';
+                    heart.style.opacity = '1';
+                });
+                return;
+            }
+
+            const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+
+            countdownElement.textContent = `${days} дней, ${hours} часов и ${minutes} минут`;
+        }
+
+        // Создаем сердечки
+        function createHearts() {
+            const now = new Date();
+            // Определяем, какой день сейчас (от 1 до 7)
+            const currentDay = Math.floor((now - startDate) / (1000 * 60 * 60 * 24)) + 1;
+
+            for (let i = 1; i <= 7; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.innerHTML = `<div class="heart-number">${i}</div>`;
+
+                // Устанавливаем фоновое изображение для сердца
+                heart.style.backgroundImage = `url('${config.heartImage}')`;
+
+                // Проверяем, можно ли открыть это сердечко
+                if (i <= currentDay && now < birthday) {
+                    heart.addEventListener('click', () => openGift(i));
+                } else if (now >= birthday) {
+                    // Если ДР уже наступило, открываем все
+                    heart.addEventListener('click', () => openGift(i));
+                } else {
+                    heart.style.cursor = 'not-allowed';
+                    heart.style.opacity = '0.5';
+                }
+
+                // Помечаем уже открытые дни
+                if (i < currentDay && now < birthday) {
+                    heart.classList.add('opened');
+                } else if (now >= birthday) {
+                    heart.classList.add('opened');
+                }
+
+                heartsContainer.appendChild(heart);
+            }
+        }
+
+        // Функция открытия подарка
+        function openGift(dayNumber) {
+            giftDayElement.textContent = dayNumber;
+            giftTextElement.textContent = config.gifts[dayNumber - 1];
+            modal.style.display = 'block';
+
+            // Помечаем сердечко как открытое
+            const hearts = document.querySelectorAll('.heart');
+            hearts[dayNumber - 1].classList.add('opened');
+            hearts[dayNumber - 1].style.opacity = '1';
+        }
+
+        // Закрытие модального окна
+        closeBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
+        window.addEventListener('click', (event) => {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+        // Инициализация
+        updateCountdown();
+        createHearts();
+        setInterval(updateCountdown, 60000); // Обновляем отсчет каждую минуту
+    </script>
+</body>
+</html>
