@@ -248,22 +248,30 @@
             countdownElement.textContent = `${days} дней, ${hours} часов и ${minutes} минут`;
         }
 
-        // Создаем сердечки
+       // Создаем сердечки
         function createHearts() {
             const now = new Date();
             // Определяем, какой день сейчас (от 1 до 7)
             const currentDay = Math.floor((now - startDate) / (1000 * 60 * 60 * 24)) + 1;
 
-           for (let i = 1; i <= 7; i++) {
-    const heart = document.createElement('div');
-    heart.className = 'heart';
-    heart.innerHTML = `<div class="heart-number">${i}</div>`;
+            for (let i = 1; i <= 7; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.innerHTML = `<div class="heart-number">${i}</div>`;
 
-    // Устанавливаем фоновое изображение для сердца
-    heart.style.backgroundImage = `url('${config.heartImage}')`;
+                // Устанавливаем фоновое изображение для сердца
+                heart.style.backgroundImage = `url('${config.heartImage}')`;
 
-    // ВРЕМЕННО: разрешаем открывать все сердечки
-    heart.addEventListener('click', () => openGift(i));
+                // Проверяем, можно ли открыть это сердечко
+                if (i <= currentDay && now < birthday) {
+                    heart.addEventListener('click', () => openGift(i));
+                } else if (now >= birthday) {
+                    // Если ДР уже наступило, открываем все
+                    heart.addEventListener('click', () => openGift(i));
+                } else {
+                    heart.style.cursor = 'not-allowed';
+                    heart.style.opacity = '0.5';
+                }
         
 
                 // Помечаем уже открытые дни
