@@ -33,6 +33,7 @@
             background-position: center;
             box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
             max-width: 800px;
+            width: 90%;
         }
 
         .hearts-container {
@@ -80,43 +81,45 @@
             backdrop-filter: blur(5px);
         }
 
-        .modal-content {
-            background-color: #fefefe;
-            color: #333;
-            margin: 15% auto;
-            padding: 30px;
-            border-radius: 15px;
-            width: 80%;
-            max-width: 500px;
+        .modal-content-image {
+            background: transparent;
+            margin: 10% auto;
+            padding: 0;
+            border-radius: 0;
+            width: 90%;
+            max-width: 350px;
             text-align: center;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            box-shadow: none;
             position: relative;
         }
 
+        .image-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
         .close {
-            color: #aaa;
+            color: white;
             float: right;
-            font-size: 28px;
+            font-size: 32px;
             font-weight: bold;
             position: absolute;
-            top: 10px;
-            right: 20px;
+            top: -40px;
+            right: -10px;
             cursor: pointer;
+            z-index: 101;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
         }
 
         .close:hover {
-            color: black;
-        }
-
-        .gift-title {
-            font-size: 1.5em;
-            margin-bottom: 15px;
-            color: #e91e63;
-        }
-
-        .gift-description {
-            font-size: 1.1em;
-            line-height: 1.5;
+            color: #ffeb3b;
         }
 
         /* Стиль для открытого сердца */
@@ -152,6 +155,23 @@
             font-weight: bold;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
         }
+
+        /* Адаптация для очень маленьких экранов */
+        @media (max-width: 400px) {
+            .container {
+                width: 95%;
+                padding: 20px;
+            }
+            
+            .heart {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .modal-content-image {
+                margin: 5% auto;
+            }
+        }
     </style>
 </head>
 <body>
@@ -169,10 +189,11 @@
 
     <!-- Модальное окно для показа подарка -->
     <div id="giftModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content-image">
             <span class="close">&times;</span>
-            <h2 class="gift-title">Глава <span id="giftDay"></span></h2>
-            <p class="gift-description" id="giftText"></p>
+            <div class="image-container">
+                <img id="giftImage" src="всплывающее_окно.png" alt="Глава">
+            </div>
         </div>
     </div>
 
@@ -181,28 +202,16 @@
         const config = {
             // ДАТА ДНЯ РОЖДЕНИЯ - 24.12.2025
             birthdayDate: '2025-12-24',
-            // ПУТИ К ИЗОБРАЖЕНИЯМ - используйте только названия файлов!
+            // ПУТИ К ИЗОБРАЖЕНИЯМ
             backgroundImage: 'фон_основной.jpg',
             plaqueImage: 'плашка.png',
-            heartImage: 'сердечко.png',
-            // Описания подарков для каждого из 7 дней
-            gifts: [
-                "Тайна Шёпота Фей\n«Куда подевался молочный зуб того крохи? — перешёптываются феи у изголовья. — Говорят, он оставил его там, где рождаются самые смелые сны...»",
-                "Мудрость Дремучего Леса\n«Старый дуб, что знает все истории на свете, приоткрыл свою потайную дверцу. Там, среди мудрых страниц, спрятан ключ к новой приключенческой саге».",
-                "Напевы Волшебного Свиреля\n«Чтобы услышать магическую мелодию, что заставляет пуститься в пляс даже лесных великанов, нужно лишь попросить волшебную колонну сыграть её погромче».",
-                "Эликсир Силы в Росуарском Лесу\n«Водяной эльф оставил для тебя пузырёк с утренней росой, собранной с паутинок. Она дарит богатырскую силу и бодрость, но найти её можно лишь в гроте, где плещется радужная вода».",
-                "Послание из Чащи\n«Говорят, в самой сердцевине леса живёт эльфийка-отшельница. Она не показывается никому, но для тех, кто верит, оставляет свои дары на опушке, отмеченные серебряным светом».",
-                "Снаряжение для Путешественника\n«Карты сокровищ и плащи-невидимки — всё это ждёт в потайном сундуке отважного искателя приключений. Открой секретный ящик, где хранится экипировка для великих подвигов».",
-                "Приглашение в Королевскую Трапезную\n«Сегодня все дороги ведут в потайной зал, где пируют благородные рыцари и мудрые волшебники. Там, в центре пиршества, тебя ждёт трофей, достойный настоящего героя»."
-            ]
+            heartImage: 'сердечко.png'
         };
 
         // Элементы DOM
         const countdownElement = document.getElementById('countdown');
         const heartsContainer = document.querySelector('.hearts-container');
         const modal = document.getElementById('giftModal');
-        const giftDayElement = document.getElementById('giftDay');
-        const giftTextElement = document.getElementById('giftText');
         const closeBtn = document.querySelector('.close');
 
         // Рассчитываем дату начала обратного отсчета (за 7 дней до ДР)
@@ -248,7 +257,7 @@
                 // Устанавливаем фоновое изображение для сердца
                 heart.style.backgroundImage = `url('${config.heartImage}')`;
 
-                // ВРЕМЕННО: разрешаем открывать все сердечки
+                // Разрешаем открывать все сердечки
                 heart.addEventListener('click', () => openGift(i));
 
                 heartsContainer.appendChild(heart);
@@ -257,8 +266,7 @@
 
         // Функция открытия подарка
         function openGift(dayNumber) {
-            giftDayElement.textContent = dayNumber;
-            giftTextElement.textContent = config.gifts[dayNumber - 1];
+            // Показываем модальное окно с изображением
             modal.style.display = 'block';
 
             // Помечаем сердечко как открытое
