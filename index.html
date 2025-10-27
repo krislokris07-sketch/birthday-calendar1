@@ -319,7 +319,7 @@
                     countdownElement.textContent = "Вот и перевернута последняя страница. Но разве сказка когда-нибудь кончается? Она просто становится частью тебя. Твоя сказка будет вечной. ✨";
                     countdownElement.className = "birthday-text";
                 } else {
-                    countdownElement.textContent = "Сделай последний шаг. Произнеси вслух заветные слова: "Открываю последнюю главу" — и финальное послание явится тебе.";
+                    countdownElement.textContent = "Сделай последний шаг. Произнеси вслух заветные слова: «Открываю последнюю главу» — и финальное послание явится тебе.";
                     countdownElement.className = "countdown-text";
                 }
                 
@@ -342,12 +342,34 @@
         }
 
         function createHearts() {
+            const now = new Date();
+            // Определяем, какой день сейчас (от 1 до 7)
+            const currentDay = Math.floor((now - startDate) / (1000 * 60 * 60 * 24)) + 1;
+
             for (let i = 1; i <= 7; i++) {
                 const heart = document.createElement('div');
                 heart.className = 'heart';
                 heart.innerHTML = `<div class="heart-number">${i}</div>`;
                 heart.style.backgroundImage = `url('${config.heartImage}')`;
-                heart.addEventListener('click', () => openGift(i));
+
+                // Проверяем, можно ли открыть это сердечко
+                if (i <= currentDay && now < birthday) {
+                    heart.addEventListener('click', () => openGift(i));
+                } else if (now >= birthday) {
+                    // Если ДР уже наступило, открываем все
+                    heart.addEventListener('click', () => openGift(i));
+                } else {
+                    heart.style.cursor = 'not-allowed';
+                    heart.style.opacity = '0.5';
+                }
+
+                // Помечаем уже открытые дни
+                if (i < currentDay && now < birthday) {
+                    heart.classList.add('opened');
+                } else if (now >= birthday) {
+                    heart.classList.add('opened');
+                }
+
                 heartsContainer.appendChild(heart);
             }
         }
