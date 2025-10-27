@@ -72,13 +72,26 @@
         }
 
         .countdown-text {
-    font-size: 1.6em;
-    margin-bottom: 30px;
-    font-weight: bold;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
-    color: #285e58;
-    font-family: 'Underdog'; /* ← ГОТИЧЕСКИЙ ШРИФТ */
-}
+            font-size: 1.6em;
+            margin-bottom: 30px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+            color: #285e58;
+            font-family: 'Underdog';
+        }
+
+        .birthday-text {
+            font-size: 1.6em;
+            margin-bottom: 30px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+            color: #285e58;
+            font-family: 'Underdog';
+            text-transform: none;
+            line-height: 1.4;
+            max-width: 90%;
+            margin: 0 auto;
+        }
         
         .heart {
             width: 120px;
@@ -163,11 +176,11 @@
         }
 
         .audio-player {
-    width: 150px;
-    height: 30px;
-    margin: 10px auto;
-    opacity: 0.8;
-}
+            width: 150px;
+            height: 30px;
+            margin: 10px auto;
+            opacity: 0.8;
+        }
 
         .close {
             color: white;
@@ -278,6 +291,10 @@
             ]
         };
 
+        // Добавляем отслеживание открытых сердечек
+        let openedHearts = 0;
+        const totalHearts = 7;
+
         const countdownElement = document.getElementById('countdown');
         const heartsContainer = document.querySelector('.hearts-container');
         const modal = document.getElementById('giftModal');
@@ -297,7 +314,16 @@
             const timeDiff = birthday - now;
 
             if (timeDiff <= 0) {
-                countdownElement.textContent = "СКАЗКА НАЧАЛАСЬ! 🎉✨";
+                // Проверяем, все ли сердечки открыты перед показом текста
+                if (openedHearts === totalHearts) {
+                    countdownElement.textContent = "Вот и перевернута последняя страница. Но разве сказка когда-нибудь кончается? Она просто становится частью тебя. Твоя сказка будет вечной. ✨";
+                    countdownElement.className = "birthday-text";
+                } else {
+                    countdownElement.textContent = "Сделай последний шаг. Произнеси вслух заветные слова: "Открываю последнюю главу" — и финальное послание явится тебе.";
+                    countdownElement.className = "countdown-text";
+                }
+                
+                // Показываем все сердечки как открытые
                 const hearts = document.querySelectorAll('.heart');
                 hearts.forEach(heart => {
                     heart.classList.add('opened');
@@ -307,6 +333,7 @@
                 return;
             }
 
+            countdownElement.className = "countdown-text";
             const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
             const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
@@ -329,16 +356,34 @@
             chapterTextElement.textContent = config.gifts[dayNumber - 1];
             audioElement.src = config.audioFiles[dayNumber - 1];
             
-            // Пытаемся воспроизвести автоматически
             audioElement.play().catch(e => {
-                console.log("Автовоспроизведение заблокировано, пользователь должен запустить вручную");
+                console.log("Автовоспроизведение заблокировано");
             });
             
             modal.style.display = 'block';
 
             const hearts = document.querySelectorAll('.heart');
-            hearts[dayNumber - 1].classList.add('opened');
-            hearts[dayNumber - 1].style.opacity = '1';
+            const currentHeart = hearts[dayNumber - 1];
+            
+            if (!currentHeart.classList.contains('opened')) {
+                currentHeart.classList.add('opened');
+                currentHeart.style.opacity = '1';
+                openedHearts++;
+                
+                // Проверяем, все ли сердечки открыты (для случая, если ДР уже наступило)
+                checkAllHeartsOpened();
+            }
+        }
+
+        function checkAllHeartsOpened() {
+            const now = new Date();
+            const timeDiff = birthday - now;
+            
+            // Показываем финальный текст только если все сердечки открыты И наступил ДР
+            if (openedHearts === totalHearts && timeDiff <= 0) {
+                countdownElement.textContent = "Вот и перевернута последняя страница. Но разве сказка когда-нибудь кончается? Она просто становится частью тебя. Твоя сказка будет вечной. ✨";
+                countdownElement.className = "birthday-text";
+            }
         }
 
         closeBtn.addEventListener('click', () => {
