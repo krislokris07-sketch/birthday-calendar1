@@ -79,6 +79,8 @@
             height: 100%;
             background-color: rgba(0, 0, 0, 0.8);
             backdrop-filter: blur(5px);
+            /* Делаем фон модального окна статичным */
+            background-attachment: fixed;
         }
 
         .modal-content-image {
@@ -91,6 +93,11 @@
             text-align: center;
             box-shadow: none;
             position: relative;
+            /* Делаем само окно статичным */
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
         }
 
         .image-container {
@@ -103,6 +110,19 @@
             height: auto;
             border-radius: 10px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .chapter-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            text-align: center;
+            width: 80%;
+            font-size: 14px;
+            line-height: 1.4;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
         }
 
         .close {
@@ -170,6 +190,12 @@
             
             .modal-content-image {
                 margin: 5% auto;
+                max-width: 320px;
+            }
+            
+            .chapter-text {
+                font-size: 12px;
+                width: 85%;
             }
         }
     </style>
@@ -193,6 +219,7 @@
             <span class="close">&times;</span>
             <div class="image-container">
                 <img id="giftImage" src="всплывающее_окно.png" alt="Глава">
+                <div class="chapter-text" id="chapterText"></div>
             </div>
         </div>
     </div>
@@ -205,13 +232,24 @@
             // ПУТИ К ИЗОБРАЖЕНИЯМ
             backgroundImage: 'фон_основной.jpg',
             plaqueImage: 'плашка.png',
-            heartImage: 'сердечко.png'
+            heartImage: 'сердечко.png',
+            // Описания глав для каждого из 7 дней
+            gifts: [
+                "Тайна Шёпота Фей\n«Куда подевался молочный зуб того крохи? — перешёптываются феи у изголовья. — Говорят, он оставил его там, где рождаются самые смелые сны...»",
+                "Мудрость Дремучего Леса\n«Старый дуб, что знает все истории на свете, приоткрыл свою потайную дверцу. Там, среди мудрых страниц, спрятан ключ к новой приключенческой саге».",
+                "Напевы Волшебного Свиреля\n«Чтобы услышать магическую мелодию, что заставляет пуститься в пляс даже лесных великанов, нужно лишь попросить волшебную колонну сыграть её погромче».",
+                "Эликсир Силы в Росуарском Лесу\n«Водяной эльф оставил для тебя пузырёк с утренней росой, собранной с паутинок. Она дарит богатырскую силу и бодрость, но найти её можно лишь в гроте, где плещется радужная вода».",
+                "Послание из Чащи\n«Говорят, в самой сердцевине леса живёт эльфийка-отшельница. Она не показывается никому, но для тех, кто верит, оставляет свои дары на опушке, отмеченные серебряным светом».",
+                "Снаряжение для Путешественника\n«Карты сокровищ и плащи-невидимки — всё это ждёт в потайном сундуке отважного искателя приключений. Открой секретный ящик, где хранится экипировка для великих подвигов».",
+                "Приглашение в Королевскую Трапезную\n«Сегодня все дороги ведут в потайной зал, где пируют благородные рыцари и мудрые волшебники. Там, в центре пиршества, тебя ждёт трофей, достойный настоящего героя»."
+            ]
         };
 
         // Элементы DOM
         const countdownElement = document.getElementById('countdown');
         const heartsContainer = document.querySelector('.hearts-container');
         const modal = document.getElementById('giftModal');
+        const chapterTextElement = document.getElementById('chapterText');
         const closeBtn = document.querySelector('.close');
 
         // Рассчитываем дату начала обратного отсчета (за 7 дней до ДР)
@@ -266,7 +304,8 @@
 
         // Функция открытия подарка
         function openGift(dayNumber) {
-            // Показываем модальное окно с изображением
+            // Показываем модальное окно с изображением и текстом главы
+            chapterTextElement.textContent = config.gifts[dayNumber - 1];
             modal.style.display = 'block';
 
             // Помечаем сердечко как открытое
