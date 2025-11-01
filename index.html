@@ -101,24 +101,24 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 80%;
-            max-width: 400px;
-            padding: 30px;
+            width: 85%;
+            max-width: 380px;
+            padding: 20px;
             text-align: center;
         }
 
         .character-name {
             font-family: 'Underdog', cursive;
-            font-size: 1.4em;
+            font-size: 1.2em;
             color: #3f7e86;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             text-shadow: 0 2px 4px rgba(255, 255, 255, 0.3);
         }
 
         .dialog-text {
-            font-size: 1.1em;
-            line-height: 1.6;
-            margin-bottom: 25px;
+            font-size: 0.95em;
+            line-height: 1.4;
+            margin-bottom: 15px;
             color: #2c3e50;
             text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
             white-space: pre-line;
@@ -127,17 +127,17 @@
         .choices-container {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 8px;
         }
 
         .choice-btn {
             background: #4f6182;
             color: #e1ecff;
             border: 2px solid #385759;
-            border-radius: 25px;
-            padding: 15px 20px;
+            border-radius: 20px;
+            padding: 10px 15px;
             font-family: 'Georgia', serif;
-            font-size: 1em;
+            font-size: 0.9em;
             cursor: pointer;
             transition: all 0.3s ease;
             text-align: left;
@@ -145,7 +145,7 @@
 
         .choice-btn:hover {
             background: #838a98;
-            transform: translateX(10px);
+            transform: translateX(5px);
         }
 
         .choice-btn.danger {
@@ -156,17 +156,17 @@
         .attempts-display {
             font-family: 'Underdog', cursive;
             color: #385759;
-            font-size: 1.1em;
-            margin-bottom: 20px;
+            font-size: 1em;
+            margin-bottom: 15px;
             text-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
         }
 
         /* Стили для сообщений о проигрыше */
         .game-message {
             font-family: 'Underdog', cursive;
-            font-size: 1.3em;
-            line-height: 1.6;
-            margin-bottom: 25px;
+            font-size: 1.1em;
+            line-height: 1.4;
+            margin-bottom: 20px;
             white-space: pre-line;
             text-align: center;
         }
@@ -180,13 +180,13 @@
             background: linear-gradient(135deg, #87CEEB, #1E90FF);
             color: white;
             border: none;
-            border-radius: 25px;
-            padding: 15px 30px;
+            border-radius: 20px;
+            padding: 12px 25px;
             font-family: 'Underdog', cursive;
-            font-size: 1.1em;
+            font-size: 1em;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-top: 20px;
+            margin-top: 15px;
         }
 
         .restart-btn:hover {
@@ -196,7 +196,18 @@
         @media (max-width: 600px) {
             .quest-title { font-size: 2em; }
             .start-btn { padding: 15px 30px; font-size: 1.2em; }
-            .dialog-container { padding: 20px; width: 90%; }
+            .dialog-container { 
+                padding: 15px; 
+                width: 90%; 
+            }
+            .choice-btn {
+                padding: 8px 12px;
+                font-size: 0.85em;
+            }
+            .dialog-text {
+                font-size: 0.9em;
+                margin-bottom: 12px;
+            }
         }
     </style>
 </head>
