@@ -20,10 +20,14 @@
             justify-content: center;
             align-items: center;
             padding: 20px;
-            background: url('фон_водный.jpg') no-repeat center center fixed;
+            position: relative;
+            overflow: hidden;
+            /* ТВОЙ ФОН */
+            background: url('фон_водный.png') no-repeat center center fixed;
             background-size: cover;
         }
 
+        /* Затемнение для лучшей читаемости */
         body::before {
             content: '';
             position: fixed;
@@ -31,16 +35,17 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.3);
-            z-index: -1;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 1;
         }
 
+        /* Главный контейнер */
         .quest-container {
             max-width: 800px;
             width: 100%;
             text-align: center;
             position: relative;
-            z-index: 10;
+            z-index: 2;
         }
 
         .quest-title {
@@ -69,6 +74,7 @@
             transform: translateY(-5px) scale(1.05);
         }
 
+        /* Модальное окно */
         .modal {
             display: none;
             position: fixed;
@@ -87,6 +93,7 @@
             transform: translate(-50%, -50%);
             width: 90%;
             max-width: 500px;
+            z-index: 1001;
         }
 
         .modal-image {
@@ -105,6 +112,7 @@
             max-width: 400px;
             padding: 30px;
             text-align: center;
+            z-index: 1002;
         }
 
         .character-name {
@@ -128,6 +136,8 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
+            z-index: 1003;
+            position: relative;
         }
 
         .choice-btn {
@@ -141,11 +151,18 @@
             cursor: pointer;
             transition: all 0.3s ease;
             text-align: left;
+            position: relative;
+            z-index: 1004;
         }
 
         .choice-btn:hover {
             background: rgba(160, 82, 45, 0.95);
             transform: translateX(10px);
+        }
+
+        .choice-btn.danger {
+            background: rgba(220, 20, 60, 0.9);
+            border-color: #DC143C;
         }
 
         .attempts-display {
@@ -182,32 +199,100 @@
     </div>
 
     <script>
-        // Упрощенная конфигурация для теста
-        const dialogues = [
-            {
-                character: "💧 Водяной Эльф",
-                text: "Привет! Это тестовая загадка:\n\nЧто это за место где есть вода?",
-                choices: [
-                    { text: "Кухня", next: 1, isCorrect: false },
-                    { text: "Ванная", next: 2, isCorrect: true }
-                ]
-            },
-            {
-                character: "💧 Водяной Эльф",
-                text: "❌ Неверно! Попробуй еще раз.",
-                choices: [
-                    { text: "Кухня", next: 1, isCorrect: false },
-                    { text: "Ванная", next: 2, isCorrect: true }
-                ]
-            },
-            {
-                character: "💧 Водяной Эльф", 
-                text: "✅ Правильно! Молодец!",
-                choices: [
-                    { text: "Завершить", next: 0, effect: "complete" }
-                ]
-            }
-        ];
+        // Полная конфигурация диалогов
+        const dialogues = {
+            start: [
+                {
+                    character: "💧 Водяной Эльф",
+                    text: "Приветствую, искатель приключений! Я - Хранитель Росуарского Леса.\n\nГоворят, ты ищешь мой эликсир силы? Чтобы получить его, тебе предстоит разгадать три загадки. Но будь осторожен - у тебя всего 3 попытки!",
+                    choices: [
+                        { text: "Я готов к испытанию!", next: 1 },
+                        { text: "Расскажи сначала о себе", next: 2 }
+                    ]
+                },
+                {
+                    character: "💧 Водяной Эльф", 
+                    text: "Отлично! Начнём с первой загадки:\n\n«Не комната, но пространство есть,\nНе улица, но есть окно.\nТам утренняя роса рождается,\nГде зеркала хранят стекло.\n\nЧто это за место?»",
+                    choices: [
+                        { text: "Балкон", next: 3, isCorrect: false },
+                        { text: "Кухня", next: 3, isCorrect: false },
+                        { text: "Санузел", next: 4, isCorrect: true },
+                        { text: "Прихожая", next: 3, isCorrect: false }
+                    ]
+                },
+                {
+                    character: "💧 Водяной Эльф",
+                    text: "Я - древний дух водных источников. Веками я собираю утреннюю росу с паутинок и превращаю её в эликсир силы. Но только самые мудрые могут найти его...",
+                    choices: [
+                        { text: "Теперь я готов к загадкам!", next: 1 }
+                    ]
+                },
+                {
+                    character: "💧 Водяной Эльф",
+                    text: "❌ Неверно! Но не отчаивайся, попробуй ещё раз.\n\nЗагадка первая:\n«Не комната, но пространство есть,\nНе улица, но есть окно...»",
+                    choices: [
+                        { text: "Балкон", next: 3, isCorrect: false },
+                        { text: "Кухня", next: 3, isCorrect: false },
+                        { text: "Санузел", next: 4, isCorrect: true },
+                        { text: "Прихожая", next: 3, isCorrect: false }
+                    ]
+                },
+                {
+                    character: "💧 Водяной Эльф",
+                    text: "✅ Верно! Санузел — правильный путь.\n\nЗагадка вторая, о сосуде волшебном:\n\n«Белый корабль в бриллиантовой бухте,\nПринимает в объятия тело и душу.\nВ нём рождаются радуги из капель,\nИ усталость на дне его тонет.\n\nЧто это?»",
+                    choices: [
+                        { text: "Раковина", next: 5, isCorrect: false },
+                        { text: "Душевая кабина", next: 5, isCorrect: false },
+                        { text: "Ванна", next: 6, isCorrect: true },
+                        { text: "Унитаз", next: 7, isCorrect: false, special: "fail" }
+                    ]
+                },
+                {
+                    character: "💧 Водяной Эльф",
+                    text: "❌ Неверно! Подумай ещё...\n\nЗагадка вторая:\n«Белый корабль в бриллиантовой бухте...»",
+                    choices: [
+                        { text: "Раковина", next: 5, isCorrect: false },
+                        { text: "Душевая кабина", next: 5, isCorrect: false },
+                        { text: "Ванна", next: 6, isCorrect: true },
+                        { text: "Унитаз", next: 7, isCorrect: false, special: "fail" }
+                    ]
+                },
+                {
+                    character: "💧 Водяной Эльф",
+                    text: "✅ И снова верно! Ванна — корабль твоих снов.\n\nЗагадка третья, о времени и месте:\n\n«Когда луна сменяет солнце,\nИ звёзды зажигают свет,\nВ каком углу твоего убежища\nСияет эликсир, дарующий силу?»\n\nПодсказка: ищи там, где обычно лежат полотенца...",
+                    choices: [
+                        { text: "На полке над ванной", next: 8, isCorrect: true },
+                        { text: "В шкафчике под раковиной", next: 9, isCorrect: false },
+                        { text: "На зеркале", next: 9, isCorrect: false },
+                        { text: "На полу у ванны", next: 9, isCorrect: false }
+                    ]
+                },
+                {
+                    character: "💧 Водяной Эльф",
+                    text: "❌ ТЫ СЕРЬЕЗНО?! 😠 Унитаз?! Магия оскорблена! Испытание провалено!",
+                    choices: [
+                        { text: "Начать заново", next: 0, effect: "resetGame" }
+                    ]
+                },
+                {
+                    character: "💧 Водяной Эльф",
+                    text: "✨ ПОЗДРАВЛЯЮ! 🎉\n\nТы разгадал все загадки и доказал свою мудрость!\n\nТвой эликсир силы ждёт тебя на ПОЛКЕ НАД ВАННОЙ!\n\nИди и найди своё сокровище!",
+                    choices: [
+                        { text: "Завершить квест", next: 0, effect: "completeQuest" }
+                    ]
+                },
+                {
+                    character: "💧 Водяной Эльф",
+                    text: "❌ Неверно! Вспомни подсказку...\n\nЗагадка третья:\n«Когда луна сменяет солнце...\nПодсказка: ищи там, где обычно лежат полотенца»",
+                    choices: [
+                        { text: "На полке над ванной", next: 8, isCorrect: true },
+                        { text: "В шкафчике под раковиной", next: 9, isCorrect: false },
+                        { text: "На зеркале", next: 9, isCorrect: false },
+                        { text: "На полу у ванны", next: 9, isCorrect: false }
+                    ]
+                }
+            ]
+        };
 
         let currentStep = 0;
         let attempts = 3;
@@ -220,62 +305,94 @@
         const dialogText = document.getElementById('dialogText');
         const choicesContainer = document.getElementById('choicesContainer');
 
-        // Простой запуск
-        startBtn.addEventListener('click', function() {
-            console.log('Квест запущен!');
+        startBtn.addEventListener('click', startQuest);
+
+        function startQuest() {
             currentStep = 0;
             attempts = 3;
             correctAnswers = 0;
             showDialogStep(0);
             modal.style.display = 'block';
-        });
+        }
 
         function showDialogStep(stepIndex) {
-            console.log('Показываем шаг:', stepIndex);
-            const step = dialogues[stepIndex];
-            
+            const step = dialogues.start[stepIndex];
+            if (!step) return;
+
+            updateAttemptsDisplay();
             characterName.textContent = step.character;
             dialogText.textContent = step.text;
-            attemptsDisplay.textContent = `Попытки: ${attempts} | Правильно: ${correctAnswers}`;
             
             choicesContainer.innerHTML = '';
             step.choices.forEach(choice => {
                 const button = document.createElement('button');
                 button.className = 'choice-btn';
+                if (choice.special === "fail") {
+                    button.classList.add('danger');
+                }
                 button.textContent = choice.text;
-                button.addEventListener('click', function() {
-                    console.log('Нажата кнопка:', choice.text);
-                    handleChoice(choice);
-                });
+                button.addEventListener('click', () => handleChoice(choice));
                 choicesContainer.appendChild(button);
             });
         }
 
         function handleChoice(choice) {
-            console.log('Обрабатываем выбор:', choice);
-            
-            if (choice.effect === "complete") {
-                modal.style.display = 'none';
-                alert('Поздравляем! Квест завершен!');
+            if (choice.effect === "resetGame") {
+                resetGame();
                 return;
             }
 
-            if (choice.isCorrect) {
-                correctAnswers++;
-                console.log('Правильный ответ!');
-            } else {
+            if (choice.effect === "completeQuest") {
+                completeQuest();
+                return;
+            }
+
+            if (choice.isCorrect === false) {
                 attempts--;
-                console.log('Неправильный ответ! Осталось попыток:', attempts);
+                
+                if (choice.special === "fail") {
+                    attempts = 0;
+                }
+                
+                if (attempts <= 0) {
+                    gameOver();
+                    return;
+                }
+                
+                currentStep = choice.next;
+                showDialogStep(choice.next);
+                
+            } else if (choice.isCorrect === true) {
+                correctAnswers++;
+                currentStep = choice.next;
+                showDialogStep(choice.next);
             }
+        }
 
-            if (attempts <= 0) {
-                modal.style.display = 'none';
-                alert('Игра окончена!');
-                return;
+        function updateAttemptsDisplay() {
+            let hearts = '';
+            for (let i = 0; i < attempts; i++) {
+                hearts += '💙 ';
             }
+            for (let i = attempts; i < 3; i++) {
+                hearts += '🖤 ';
+            }
+            attemptsDisplay.innerHTML = `Попытки: ${hearts} | Правильных ответов: ${correctAnswers}/3`;
+        }
 
-            currentStep = choice.next;
-            showDialogStep(choice.next);
+        function gameOver() {
+            modal.style.display = 'none';
+            alert(`Игра окончена! Вы ответили правильно на ${correctAnswers} из 3 загадок.`);
+        }
+
+        function completeQuest() {
+            modal.style.display = 'none';
+            alert('🎉 Поздравляем! Вы нашли эликсир силы! 🎉\n\nВаш подарок ждет на полке над ванной!');
+        }
+
+        function resetGame() {
+            modal.style.display = 'none';
+            setTimeout(startQuest, 500);
         }
     </script>
 </body>
