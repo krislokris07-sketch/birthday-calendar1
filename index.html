@@ -160,7 +160,7 @@
             margin-bottom: 20px;
         }
 
-        /* Стили для сообщений о победе/проигрыше */
+        /* Стили для сообщений о проигрыше */
         .game-message {
             font-family: 'Underdog', cursive;
             font-size: 1.3em;
@@ -168,11 +168,6 @@
             margin-bottom: 25px;
             white-space: pre-line;
             text-align: center;
-        }
-
-        .win-message {
-            color: #FFD700;
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
         }
 
         .lose-message {
@@ -372,7 +367,8 @@
             }
 
             if (choice.effect === "completeQuest") {
-                showWinMessage();
+                // Просто закрываем модальное окно при завершении квеста
+                modal.style.display = 'none';
                 return;
             }
 
@@ -396,28 +392,12 @@
                 currentStep = choice.next;
                 showDialogStep(choice.next);
                 
-                if (correctAnswers >= 3) {
-                    setTimeout(() => {
-                        showWinMessage();
-                    }, 1000);
-                }
+                // При достижении 3 правильных ответов показываем финальный диалог (шаг 8)
+                // и там уже будет кнопка "Завершить квест"
             } else {
                 currentStep = choice.next;
                 showDialogStep(choice.next);
             }
-        }
-
-        function showWinMessage() {
-            characterName.textContent = "🎉 ПОБЕДА!";
-            dialogText.innerHTML = '<div class="game-message win-message">✨ ВЫ НАШЛИ ЭЛИКСИР СИЛЫ! ✨\n\nТвой эликсир силы ждёт тебя на:\n\n<b>ПОЛКЕ НАД ВАННОЙ!</b>\n\nИди и найди своё сокровище!</div>';
-            attemptsDisplay.textContent = "";
-            
-            choicesContainer.innerHTML = '';
-            const restartBtn = document.createElement('button');
-            restartBtn.className = 'restart-btn';
-            restartBtn.textContent = 'Начать заново';
-            restartBtn.addEventListener('click', resetGame);
-            choicesContainer.appendChild(restartBtn);
         }
 
         function showLoseMessage() {
