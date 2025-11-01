@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Квест Водяного Эльфа</title>
+    <link href="https://fonts.googleapis.com/css2?family=Underdog&display=swap&subset=cyrillic" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            /* ТВОЙ ФОН */
+            background: url('фон_водный.jpg') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        /* Затемнение для лучшей читаемости текста */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: -1;
+        }
+
+        /* Главный контейнер */
+        .quest-container {
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Заголовок */
+        .quest-title {
+            font-family: 'Underdog', cursive;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            color: #87CEEB;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            animation: titleGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% { text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5), 0 0 20px rgba(135, 206, 235, 0.5); }
+            50% { text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5), 0 0 30px rgba(135, 206, 235, 0.8); }
+        }
+
+        /* Кнопка начала квеста */
+        .start-btn {
+            background: linear-gradient(135deg, #87CEEB, #1E90FF);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 20px 40px;
+            font-family: 'Underdog', cursive;
+            font-size: 1.4em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(135, 206, 235, 0.4);
+            margin-bottom: 40px;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 12px 35px rgba(135, 206, 235, 0.6);
+        }
+
+        /* Модальное окно с диалогом */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 500px;
+            background: transparent;
+            border-radius: 0;
+            padding: 0;
+        }
+
+        .modal-image {
+            width: 100%;
+            height: auto;
+            border-radius: 15px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .dialog-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-width: 400px;
+            padding: 30px;
+            text-align: center;
+        }
+
+        /* Текст диалога */
+        .character-name {
+            font-family: 'Underdog', cursive;
+            font-size: 1.4em;
+            color: #FFD700;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .dialog-text {
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            color: #2c3e50;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+            white-space: pre-line;
+        }
+
+        /* Контейнер выбора ответов */
+        .choices-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .choice-btn {
+            background: rgba(139, 69, 19, 0.9);
+            color: #FFEBB7;
+            border: 2px solid #D2691E;
+            border-radius: 25px;
+            padding: 15px 20px;
+            font-family: 'Georgia', serif;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .choice-btn:hover {
+            background: rgba(160, 82, 45, 0.95);
+            transform: translateX(10px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .choice-btn.danger {
+            background: rgba(220, 20, 60, 0.9);
+            border-color: #DC143C;
+        }
+
+        .choice-btn.danger:hover {
+            background: rgba(178, 34, 34, 0.95);
+        }
+
+        /* Отображение попыток */
+        .attempts-display {
+            font-family: 'Underdog', cursive;
+            color: #87CEEB;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Экран завершения */
+        .completion-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .completion-content {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+            border: 3px solid gold;
+            box-shadow: 0 20px 50px rgba(255, 215, 0, 0.3);
+        }
+
+        .completion-title {
+            font-family: 'Underdog', cursive;
+            font-size: 2.2em;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .completion-text {
+            font-size: 1.2em;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            color: white;
+            white-space: pre-line;
+        }
+
+        .completion-btn {
+            background: gold;
+            color: #1a2a6c;
+            border: none;
+            border-radius: 25px;
+            padding: 15px 30px;
+            font-family: 'Underdog', cursive;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .completion-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.5);
+        }
+
+        /* Адаптивность */
+        @media (max-width: 600px) {
+            .quest-title {
+                font-size: 2em;
+            }
+            
+            .start-btn {
+                padding: 15px 30px;
+                font-size: 1.2em;
+            }
+            
+            .dialog-container {
+                padding: 20px;
+                width: 90%;
+            }
+            
+            .character-name {
+                font-size: 1.2em;
+            }
+            
+            .dialog-text {
+                font-size: 1em;
+            }
+            
+            .choice-btn {
+                padding: 12px 15px;
+                font-size: 0.9em;
+            }
+        }
+
+        /* Эффект пузырьков - ТОЛЬКО В МОДАЛКЕ */
+        .bubble {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            animation: float linear infinite;
+            z-index: 1001;
+            pointer-events: none;
+        }
+
+        @keyframes float {
+            to {
+                transform: translateY(-100vh) rotate(360deg);
+            }
+        }
+
+        /* Контейнер для пузырьков - внутри модалки */
+        #bubbles-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1001;
+            display: none;
+        }
+
+        .modal.active ~ #bubbles-container {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Главный контейнер -->
+    <div class="quest-container">
+        <h1 class="quest-title">Квест Водяного Эльфа</h1>
+        <button class="start-btn" id="startQuestBtn">
+            Начать путешествие
+        </button>
+        <p style="color: #87CEEB; font-style: italic;">
+            Разгадай все загадки и найди эликсир силы!
+        </p>
+    </div>
+
+    <!-- Модальное окно с диалогом -->
+    <div class="modal" id="questModal">
+        <div class="modal-content">
+            <img src="всплывающее_окно.png" alt="Диалог с эльфом" class="modal-image" onerror="this.style.display='none'">
+            <div class="dialog-container">
+                <div class="character-name" id="characterName">💧 Водяной Эльф</div>
+                <div class="attempts-display" id="attemptsDisplay"></div>
+                <div class="dialog-text" id="dialogText"></div>
+                <div class="choices-container" id="choicesContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Контейнер для пузырьков (появляется только при диалоге) -->
+    <div id="bubbles-container"></div>
+
+    <!-- Экран завершения -->
+    <div class="completion-screen" id="completionScreen">
+        <div class="completion-content">
+            <div class="completion-title" id="completionTitle">Поздравляем! 🎉</div>
+            <div class="completion-text" id="completionText"></div>
+            <button class="completion-btn" id="completionBtn">Вернуться к началу</button>
+        </div>
+    </div>
+
+    <script>
+        // Конфигурация диалогов
+        const dialogues = {
+            start: [
+                {
+                    character: "💧 Водяной Эльф",
+                    text: "Приветствую, искатель приключений! Я - Хранитель Росуарского Леса.\n\nГоворят, ты ищешь мой эликсир силы? Чтобы получить его, тебе предстоит разгадать три загадки. Но будь осторожен - у тебя всего 3 попытки!",
+                    choices: [
+                        { text: "Я готов к испытанию!", next: 1 },
+                        { text: "Расскажи сначала о себе", next: 2 }
+                    ]
+                },
+                {
+                    character: "💧 Водяной Эльф", 
+                    text: "Отлично! Начнём с первой загадки:\n\n«Не комната, но пространство есть,\nНе улица, но есть окно.\nТам утренняя роса рождается,\nГде зеркала хранят стекло.\n\nЧто это за место?»",
+                    choices: [
+                        { text: "Балкон", next: 3, isCorrect: false },
+                        { text: "Кухня", next: 4, isCorrect: false },
+                        { text: "Санузел", next: 5, isCorrect: true },
+                        { text: "Прихожая", next: 6, isCorrect: false }
+                    ]
+                },
+                {
+                    character: "💧 Водяной Эльф",
+                    text: "Я - древний дух водных источников. Веками я собираю утреннюю росу с паутинок и превращаю её в эликсир силы. Но только самые мудрые могут найти его...",
+                    choices: [
+                        { text: "Теперь я готов к загадкам!", next: 1 }
+                    ]
+                },
+                {
+                    character: "💧 Водяной Эльф",
+                    text: "❌ На балконе ветер гуляет, но не там роса рождается. Попытка потрачена...",
+                    choices: [
+                        { text: "Продолжить с потерей попытки", next: 7 }
+                    ]
+                },
+                {
+                    character: "💧 Водяной Эльф", 
+                    text: "❌ Кухня знает огонь и пар, но не утреннюю росу. Будь внимательнее...",
+                    choices: [
+                        { text: "Продолжить с потерей попытки", next: 7 }
+                    ]
+                },
+                {
+                    character: "💧 Водяной Эльф",
+                    text: "✅ Верно! Санузел — правильный путь. Но это только начало...",
+                    choices: [
+                        { text: "Слушаю вторую загадку", next: 8 }
+                    ]
+                },
+                {
+                    character: "💧 Водяной Эльф",
+                    text: "❌ Прихожая встречает гостей, но не хранит утреннюю росу. Ты теряешь попытку...",
+                    choices: [
+                        { text: "Продолжить с потерей попытки", next: 7 }
+                    ]
+                },
+                {
+                    character: "💧 Водяной Эльф",
+                    text: "Загадка вторая, о сосуде волшебном:\n\n«Белый корабль в бриллиантовой бухте,\nПринимает в объятия тело и душу.\nВ нём рождаются радуги из капель,\nИ усталость на дне его тонет.\n\nЧто это?»",
+                    choices: [
+                        { text: "Раковина", next: 9, isCorrect: false },
+                        { text: "Душевая кабина", next: 10, isCorrect: false },
+                        { text: "Ванна", next: 11, isCorrect: true },
+                        { text: "Унитаз", next: 12, isCorrect: false, special: "fail" }
+                    ]
+                },
+                {
+                    character: "💧 Водяной Эльф",
+                    text: "❌ Раковина мала для радуг... Попытка потеряна.",
+                    choices: [
+                        { text: "Продолжить", next: 13 }
+                    ]
+                },
+                {
+                    character: "💧 Водяной Эльф",
+                    text: "❌ Душевая знает только бег воды, а не её накопление...",
+                    choices: [
+                        { text: "Продолжить", next: 13 }
+                    ]
+                },
+                {
+                    character: "💧 Водяной Эльф",
+                    text: "✅ И снова верно! Ванна — корабль твоих снов. Последняя загадка...",
+                    choices: [
+                        { text: "Готов к финальной загадке", next: 14 }
+                    ]
+                },
+                {
+                    character: "💧 Водяной Эльф",
+                    text: "❌ ТЫ СЕРЬЕЗНО?! 😠 Унитаз?! Магия оскорблена! Испытание провалено!",
+                    choices: [
+                        { text: "Начать заново", next: 0, effect: "resetGame" }
+                    ]
+                },
+                {
+                    character: "💧 Водяной Эльф",
+                    text: "Загадка третья, о времени и месте:\n\n«Когда луна сменяет солнце,\nИ звёзды зажигают свет,\nВ каком углу твоего убежища\nСияет эликсир, дарующий силу?»\n\nПодсказка: ищи там, где обычно лежат полотенца...",
+                    choices: [
+                        { text: "На полке над ванной", next: 15, isCorrect: true },
+                        { text: "В шкафчике под раковиной", next: 16, isCorrect: false },
+                        { text: "На зеркале", next: 17, isCorrect: false },
+                        { text: "На полу у ванны", next: 18, isCorrect: false }
+                    ]
+                },
+                {
+                    character: "💧 Водяной Эльф",
+                    text: "✨ ПОЗДРАВЛЯЮ! 🎉\n\nТы разгадал все загадки и доказал свою мудрость!\n\nТвой эликсир силы ждёт тебя на ПОЛКЕ НАД ВАННОЙ!\n\nИди и найди своё сокровище!",
+                    choices: [
+                        { text: "Отправиться за наградой!", next: 19, effect: "completeQuest" }
+                    ]
+                }
+            ]
+        };
+
+        // Переменные игры
+        let currentStep = 0;
+        let attempts = 3;
+        let correctAnswers = 0;
+
+        // Элементы DOM
+        const startBtn = document.getElementById('startQuestBtn');
+        const modal = document.getElementById('questModal');
+        const characterName = document.getElementById('characterName');
+        const attemptsDisplay = document.getElementById('attemptsDisplay');
+        const dialogText = document.getElementById('dialogText');
+        const choicesContainer = document.getElementById('choicesContainer');
+        const completionScreen = document.getElementById('completionScreen');
+        const completionTitle = document.getElementById('completionTitle');
+        const completionText = document.getElementById('completionText');
+        const completionBtn = document.getElementById('completionBtn');
+        const bubblesContainer = document.getElementById('bubbles-container');
+
+        // Запуск квеста
+        startBtn.addEventListener('click', startQuest);
+
+        function startQuest() {
+            currentStep = 0;
+            attempts = 3;
+            correctAnswers = 0;
+            showDialogStep(0);
+            modal.style.display = 'block';
+            createBubbles();
+        }
+
+        function showDialogStep(stepIndex) {
+            const step = dialogues.start[stepIndex];
+            if (!step) return;
+
+            updateAttemptsDisplay();
+            characterName.textContent = step.character;
+            dialogText.textContent = step.text;
+            
+            choicesContainer.innerHTML = '';
+            step.choices.forEach(choice => {
+                const button = document.createElement('button');
+                button.className = 'choice-btn';
+                if (choice.special === "fail") {
+                    button.classList.add('danger');
+                }
+                button.textContent = choice.text;
+                button.addEventListener('click', () => handleChoice(choice));
+                choicesContainer.appendChild(button);
+            });
+        }
+
+        function handleChoice(choice) {
+            // Анимация пузырьков при выборе ответа
+            createClickBubbles();
+
+            if (choice.isCorrect === false) {
+                attempts--;
+                if (choice.special === "fail") {
+                    attempts = 0;
+                }
+            } else if (choice.isCorrect === true) {
+                correctAnswers++;
+                // Особые пузырьки за правильный ответ
+                createCelebrationBubbles();
+            }
+
+            if (attempts <= 0) {
+                gameOver();
+                return;
+            }
+
+            if (choice.effect === "resetGame") {
+                resetGame();
+                return;
+            }
+
+            if (choice.effect === "completeQuest") {
+                completeQuest();
+                return;
+            }
+
+            currentStep = choice.next;
+            showDialogStep(choice.next);
+        }
+
+        function updateAttemptsDisplay() {
+            let hearts = '';
+            for (let i = 0; i < attempts; i++) {
+                hearts += '💙 ';
+            }
+            for (let i = attempts; i < 3; i++) {
+                hearts += '🖤 ';
+            }
+            attemptsDisplay.innerHTML = `Попытки: ${hearts} | Правильных ответов: ${correctAnswers}/3`;
+        }
+
+        function gameOver() {
+            modal.style.display = 'none';
+            bubblesContainer.innerHTML = ''; // Убираем пузырьки
+            completionTitle.textContent = '💀 Испытание провалено';
+            completionText.textContent = `Водяной Эльф разочарован...\n\nТы ответил правильно на ${correctAnswers} из 3 загадок.\n\nМагия требует большей мудрости.\n\nХочешь попробовать снова?`;
+            completionScreen.style.display = 'flex';
+        }
+
+        function completeQuest() {
+            modal.style.display = 'none';
+            createFinalBubbles(); // Особые пузырьки для победы
+            completionTitle.textContent = '🏆 Поздравляем!';
+            completionText.textContent = `Ты успешно прошёл все испытания Водяного Эльфа!\n\n🎁 Твой эликсир силы ждёт тебя:\n\n📍 На ПОЛКЕ НАД ВАННОЙ\n\nИди и найди своё волшебное сокровище!\n\nВодяной Эльф впечатлён твоей мудростью!`;
+            completionScreen.style.display = 'flex';
+        }
+
+        function resetGame() {
+            modal.style.display = 'none';
+            bubblesContainer.innerHTML = '';
+            setTimeout(startQuest, 500);
+        }
+
+        completionBtn.addEventListener('click', () => {
+            completionScreen.style.display = 'none';
+            bubblesContainer.innerHTML = '';
+            setTimeout(startQuest, 500);
+        });
+
+        // Функции для пузырьков
+        function createBubbles() {
+            bubblesContainer.innerHTML = '';
+            
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const bubble = document.createElement('div');
+                    bubble.className = 'bubble';
+                    const size = Math.random() * 25 + 5;
+                    const left = Math.random() * 100;
+                    const duration = Math.random() * 15 + 10;
+                    
+                    bubble.style.width = `${size}px`;
+                    bubble.style.height = `${size}px`;
+                    bubble.style.left = `${left}vw`;
+                    bubble.style.bottom = '-50px';
+                    bubble.style.animationDuration = `${duration}s`;
+                    bubble.style.opacity = Math.random() * 0.3 + 0.1;
+                    
+                    bubblesContainer.appendChild(bubble);
+                    
+                    // Удаляем пузырек после анимации
+                    setTimeout(() => {
+                        if (bubble.parentNode) {
+                            bubble.remove();
+                        }
+                    }, duration * 1000);
+                }, i * 300);
+            }
+        }
+
+        function createClickBubbles() {
+            for (let i = 0; i < 5; i++) {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                const size = Math.random() * 15 + 5;
+                const left = 40 + Math.random() * 20;
+                const duration = Math.random() * 5 + 3;
+                
+                bubble.style.width = `${size}px`;
+                bubble.style.height = `${size}px`;
+                bubble.style.left = `${left}vw`;
+                bubble.style.bottom = '50vh';
+                bubble.style.animationDuration = `${duration}s`;
+                bubble.style.opacity = Math.random() * 0.4 + 0.2;
+                
+                bubblesContainer.appendChild(bubble);
+                
+                setTimeout(() => {
+                    if (bubble.parentNode) {
+                        bubble.remove();
+                    }
+                }, duration * 1000);
+            }
+        }
+
+        function createCelebrationBubbles() {
+            for (let i = 0; i < 15; i++) {
+                setTimeout(() => {
+                    const bubble = document.createElement('div');
+                    bubble.className = 'bubble';
+                    const size = Math.random() * 20 + 8;
+                    const left = Math.random() * 100;
+                    const duration = Math.random() * 8 + 5;
+                    
+                    bubble.style.width = `${size}px`;
+                    bubble.style.height = `${size}px`;
+                    bubble.style.left = `${left}vw`;
+                    bubble.style.bottom = '-50px';
+                    bubble.style.animationDuration = `${duration}s`;
+                    bubble.style.opacity = Math.random() * 0.5 + 0.3;
+                    bubble.style.background = 'rgba(135, 206, 235, 0.4)';
+                    
+                    bubblesContainer.appendChild(bubble);
+                    
+                    setTimeout(() => {
+                        if (bubble.parentNode) {
+                            bubble.remove();
+                        }
+                    }, duration * 1000);
+                }, i * 100);
+            }
+        }
+
+        function createFinalBubbles() {
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    const bubble = document.createElement('div');
+                    bubble.className = 'bubble';
+                    const size = Math.random() * 30 + 10;
+                    const left = Math.random() * 100;
+                    const duration = Math.random() * 12 + 8;
+                    
+                    bubble.style.width = `${size}px`;
+                    bubble.style.height = `${size}px`;
+                    bubble.style.left = `${left}vw`;
+                    bubble.style.bottom = '-50px';
+                    bubble.style.animationDuration = `${duration}s`;
+                    bubble.style.opacity = Math.random() * 0.6 + 0.2;
+                    bubble.style.background = i % 3 === 0 ? 'rgba(255, 215, 0, 0.4)' : 'rgba(135, 206, 235, 0.4)';
+                    
+                    document.body.appendChild(bubble);
+                    
+                    setTimeout(() => {
+                        if (bubble.parentNode) {
+                            bubble.remove();
+                        }
+                    }, duration * 1000);
+                }, i * 200);
+            }
+        }
+    </script>
+</body>
+</html>
