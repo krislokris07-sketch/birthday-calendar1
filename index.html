@@ -267,10 +267,22 @@
         </div>
     </div>
 
-    <!-- Аудио элемент -->
+    <!-- Аудио элементы -->
     <audio id="backgroundMusic" loop>
-        <source src="фоновая_музыка.mp3" type="audio/mpeg">
-        <source src="фоновая_музыка.ogg" type="audio/ogg">
+        <source src="музыка_океана.mp3" type="audio/mpeg">
+        <source src="музыка_океана.ogg" type="audio/ogg">
+        Ваш браузер не поддерживает аудио элемент.
+    </audio>
+
+    <audio id="winSound">
+        <source src="победа.mp3" type="audio/mpeg">
+        <source src="победа.ogg" type="audio/ogg">
+        Ваш браузер не поддерживает аудио элемент.
+    </audio>
+
+    <audio id="loseSound">
+        <source src="проигрыш.mp3" type="audio/mpeg">
+        <source src="проигрыш.ogg" type="audio/ogg">
         Ваш браузер не поддерживает аудио элемент.
     </audio>
 
@@ -372,6 +384,8 @@
         const choicesContainer = document.getElementById('choicesContainer');
         const musicToggle = document.getElementById('musicToggle');
         const backgroundMusic = document.getElementById('backgroundMusic');
+        const winSound = document.getElementById('winSound');
+        const loseSound = document.getElementById('loseSound');
 
         // Управление музыкой
         let isMusicPlaying = false;
@@ -438,11 +452,13 @@
             console.log('⚡ Обрабатываем выбор:', choice);
             
             if (choice.effect === "resetGame" || choice.effect === "instantFail") {
+                playLoseSound();
                 showLoseMessage();
                 return;
             }
 
             if (choice.effect === "completeQuest") {
+                playWinSound();
                 modal.style.display = 'none';
                 return;
             }
@@ -451,6 +467,7 @@
                 attempts--;
                 
                 if (attempts <= 0) {
+                    playLoseSound();
                     showLoseMessage();
                     return;
                 }
@@ -471,6 +488,20 @@
                 currentStep = choice.next;
                 showDialogStep(choice.next);
             }
+        }
+
+        function playWinSound() {
+            // Останавливаем фоновую музыку при победе
+            backgroundMusic.pause();
+            winSound.currentTime = 0;
+            winSound.play();
+        }
+
+        function playLoseSound() {
+            // Останавливаем фоновую музыку при проигрыше
+            backgroundMusic.pause();
+            loseSound.currentTime = 0;
+            loseSound.play();
         }
 
         function showLoseMessage() {
@@ -494,6 +525,12 @@
                 correctAnswers = 0;
                 showDialogStep(0);
                 modal.style.display = 'block';
+                
+                // Перезапускаем фоновую музыку при рестарте
+                if (isMusicPlaying) {
+                    backgroundMusic.currentTime = 0;
+                    backgroundMusic.play();
+                }
             }, 500);
         }
 
