@@ -160,6 +160,43 @@
             margin-bottom: 20px;
         }
 
+        /* Стили для сообщений о победе/проигрыше */
+        .game-message {
+            font-family: 'Underdog', cursive;
+            font-size: 1.3em;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            white-space: pre-line;
+            text-align: center;
+        }
+
+        .win-message {
+            color: #FFD700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .lose-message {
+            color: #FF6B6B;
+            text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+        }
+
+        .restart-btn {
+            background: linear-gradient(135deg, #87CEEB, #1E90FF);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 15px 30px;
+            font-family: 'Underdog', cursive;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .restart-btn:hover {
+            transform: scale(1.05);
+        }
+
         @media (max-width: 600px) {
             .quest-title { font-size: 2em; }
             .start-btn { padding: 15px 30px; font-size: 1.2em; }
@@ -176,7 +213,6 @@
 
     <div class="modal" id="questModal">
         <div class="modal-content">
-            <!-- ИСПРАВЛЕННЫЙ ПУТЬ К ИЗОБРАЖЕНИЮ -->
             <img src="всплывающее_окно.png" alt="Диалог с эльфом" class="modal-image">
             <div class="dialog-container">
                 <div class="character-name" id="characterName">💧 Водяной Эльф</div>
@@ -336,7 +372,7 @@
             }
 
             if (choice.effect === "completeQuest") {
-                completeQuest();
+                showWinMessage();
                 return;
             }
 
@@ -348,7 +384,7 @@
                 }
                 
                 if (attempts <= 0) {
-                    gameOver();
+                    showLoseMessage();
                     return;
                 }
                 
@@ -362,7 +398,7 @@
                 
                 if (correctAnswers >= 3) {
                     setTimeout(() => {
-                        completeQuest();
+                        showWinMessage();
                     }, 1000);
                 }
             } else {
@@ -371,14 +407,30 @@
             }
         }
 
-        function gameOver() {
-            modal.style.display = 'none';
-            alert(`💀 Игра окончена! Вы ответили правильно на ${correctAnswers} из 3 загадок.`);
+        function showWinMessage() {
+            characterName.textContent = "🎉 ПОБЕДА!";
+            dialogText.innerHTML = '<div class="game-message win-message">✨ ВЫ НАШЛИ ЭЛИКСИР СИЛЫ! ✨\n\nТвой эликсир силы ждёт тебя на:\n\n<b>ПОЛКЕ НАД ВАННОЙ!</b>\n\nИди и найди своё сокровище!</div>';
+            attemptsDisplay.textContent = "";
+            
+            choicesContainer.innerHTML = '';
+            const restartBtn = document.createElement('button');
+            restartBtn.className = 'restart-btn';
+            restartBtn.textContent = 'Начать заново';
+            restartBtn.addEventListener('click', resetGame);
+            choicesContainer.appendChild(restartBtn);
         }
 
-        function completeQuest() {
-            modal.style.display = 'none';
-            alert('🎉 Поздравляем! Вы нашли эликсир силы! 🎉\n\nВаш подарок ждет на полке над ванной!');
+        function showLoseMessage() {
+            characterName.textContent = "💀 ИГРА ОКОНЧЕНА";
+            dialogText.innerHTML = `<div class="game-message lose-message">К сожалению, попытки закончились!\n\nВы ответили правильно на <b>${correctAnswers} из 3</b> загадок.\n\nНе отчаивайтесь, попробуйте ещё раз!</div>`;
+            attemptsDisplay.textContent = "";
+            
+            choicesContainer.innerHTML = '';
+            const restartBtn = document.createElement('button');
+            restartBtn.className = 'restart-btn';
+            restartBtn.textContent = 'Попробовать снова';
+            restartBtn.addEventListener('click', resetGame);
+            choicesContainer.appendChild(restartBtn);
         }
 
         function resetGame() {
