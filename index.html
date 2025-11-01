@@ -20,32 +20,14 @@
             justify-content: center;
             align-items: center;
             padding: 20px;
-            position: relative;
-            overflow: hidden;
-            /* ТВОЙ ФОН */
             background: url('фон_водный.png') no-repeat center center fixed;
             background-size: cover;
         }
 
-        /* Затемнение для лучшей читаемости */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.4);
-            z-index: 1;
-        }
-
-        /* Главный контейнер */
         .quest-container {
             max-width: 800px;
             width: 100%;
             text-align: center;
-            position: relative;
-            z-index: 2;
         }
 
         .quest-title {
@@ -74,7 +56,7 @@
             transform: translateY(-5px) scale(1.05);
         }
 
-        /* Модальное окно */
+        /* Модальное окно с твоим дизайном */
         .modal {
             display: none;
             position: fixed;
@@ -93,7 +75,7 @@
             transform: translate(-50%, -50%);
             width: 90%;
             max-width: 500px;
-            z-index: 1001;
+            /* Убрал background чтобы была видна твоя картинка */
         }
 
         .modal-image {
@@ -101,6 +83,9 @@
             height: auto;
             border-radius: 15px;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            /* Картинка НЕ должна перекрывать кнопки */
+            position: relative;
+            z-index: 1;
         }
 
         .dialog-container {
@@ -112,7 +97,8 @@
             max-width: 400px;
             padding: 30px;
             text-align: center;
-            z-index: 1002;
+            /* Критически важно - кнопки должны быть ПОВЕРХ картинки */
+            z-index: 2;
         }
 
         .character-name {
@@ -132,12 +118,21 @@
             white-space: pre-line;
         }
 
+        .attempts-display {
+            font-family: 'Underdog', cursive;
+            color: #87CEEB;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
         .choices-container {
             display: flex;
             flex-direction: column;
             gap: 12px;
-            z-index: 1003;
+            /* Очень важно - контейнер кнопок должен быть выше всего */
             position: relative;
+            z-index: 3;
         }
 
         .choice-btn {
@@ -151,25 +146,20 @@
             cursor: pointer;
             transition: all 0.3s ease;
             text-align: left;
+            /* Самое главное - кнопки должны быть самыми верхними */
             position: relative;
-            z-index: 1004;
+            z-index: 4;
         }
 
         .choice-btn:hover {
             background: rgba(160, 82, 45, 0.95);
             transform: translateX(10px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
         }
 
         .choice-btn.danger {
             background: rgba(220, 20, 60, 0.9);
             border-color: #DC143C;
-        }
-
-        .attempts-display {
-            font-family: 'Underdog', cursive;
-            color: #87CEEB;
-            font-size: 1.1em;
-            margin-bottom: 20px;
         }
 
         @media (max-width: 600px) {
@@ -188,7 +178,9 @@
 
     <div class="modal" id="questModal">
         <div class="modal-content">
-            <img src="всплывающее_окно.png" alt="Диалог с эльфом" class="modal-image" onerror="this.style.display='none'">
+            <!-- ТВОЯ КАРТИНКА -->
+            <img src="всплывающее_окно.png" alt="Диалог с эльфом" class="modal-image">
+            <!-- КОНТЕЙНЕР С КНОПКАМИ - ДОЛЖЕН БЫТЬ ПОВЕРХ КАРТИНКИ -->
             <div class="dialog-container">
                 <div class="character-name" id="characterName">💧 Водяной Эльф</div>
                 <div class="attempts-display" id="attemptsDisplay"></div>
@@ -305,17 +297,17 @@
         const dialogText = document.getElementById('dialogText');
         const choicesContainer = document.getElementById('choicesContainer');
 
-        startBtn.addEventListener('click', startQuest);
-
-        function startQuest() {
+        startBtn.addEventListener('click', function() {
+            console.log('🚀 Квест запущен!');
             currentStep = 0;
             attempts = 3;
             correctAnswers = 0;
             showDialogStep(0);
             modal.style.display = 'block';
-        }
+        });
 
         function showDialogStep(stepIndex) {
+            console.log('📝 Показываем шаг:', stepIndex);
             const step = dialogues.start[stepIndex];
             if (!step) return;
 
@@ -324,19 +316,24 @@
             dialogText.textContent = step.text;
             
             choicesContainer.innerHTML = '';
-            step.choices.forEach(choice => {
+            step.choices.forEach((choice, index) => {
                 const button = document.createElement('button');
                 button.className = 'choice-btn';
                 if (choice.special === "fail") {
                     button.classList.add('danger');
                 }
                 button.textContent = choice.text;
-                button.addEventListener('click', () => handleChoice(choice));
+                button.addEventListener('click', function() {
+                    console.log('🖱️ Нажата кнопка:', choice.text);
+                    handleChoice(choice);
+                });
                 choicesContainer.appendChild(button);
             });
         }
 
         function handleChoice(choice) {
+            console.log('⚡ Обрабатываем выбор:', choice);
+            
             if (choice.effect === "resetGame") {
                 resetGame();
                 return;
@@ -382,7 +379,7 @@
 
         function gameOver() {
             modal.style.display = 'none';
-            alert(`Игра окончена! Вы ответили правильно на ${correctAnswers} из 3 загадок.`);
+            alert(`💀 Игра окончена! Вы ответили правильно на ${correctAnswers} из 3 загадок.`);
         }
 
         function completeQuest() {
@@ -394,6 +391,11 @@
             modal.style.display = 'none';
             setTimeout(startQuest, 500);
         }
+
+        // Проверка что все загружено
+        console.log('✅ Скрипт загружен');
+        console.log('✅ Start button:', startBtn);
+        console.log('✅ Modal:', modal);
     </script>
 </body>
 </html>
