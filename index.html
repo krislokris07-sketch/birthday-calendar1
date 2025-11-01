@@ -110,7 +110,7 @@
         .character-name {
             font-family: 'Underdog', cursive;
             font-size: 1.2em;
-            color: #209ecf;
+            color: #3f7e86;
             margin-bottom: 10px;
             text-shadow: 0 2px 4px rgba(255, 255, 255, 0.3);
             font-weight: bold;
@@ -480,9 +480,9 @@
                 currentStep = choice.next;
                 showDialogStep(choice.next);
                 
-                // Проверка на победу после правильного ответа
+                // Воспроизводим звук победы сразу при достижении 3 правильных ответов
                 if (correctAnswers >= 3) {
-                    // Победа автоматически показывается в шаге 7
+                    playWinSound();
                 }
             } else {
                 currentStep = choice.next;
@@ -491,17 +491,19 @@
         }
 
         function playWinSound() {
-            // Останавливаем фоновую музыку при победе
-            backgroundMusic.pause();
+            // Воспроизводим звук победы, но НЕ останавливаем фоновую музыку
             winSound.currentTime = 0;
-            winSound.play();
+            winSound.play().catch(e => {
+                console.log('Ошибка воспроизведения звука победы:', e);
+            });
         }
 
         function playLoseSound() {
-            // Останавливаем фоновую музыку при проигрыше
-            backgroundMusic.pause();
+            // Воспроизводим звук проигрыша, но НЕ останавливаем фоновую музыку
             loseSound.currentTime = 0;
-            loseSound.play();
+            loseSound.play().catch(e => {
+                console.log('Ошибка воспроизведения звука проигрыша:', e);
+            });
         }
 
         function showLoseMessage() {
@@ -526,10 +528,12 @@
                 showDialogStep(0);
                 modal.style.display = 'block';
                 
-                // Перезапускаем фоновую музыку при рестарте
+                // Перезапускаем фоновую музыку при рестарте, если она была включена
                 if (isMusicPlaying) {
                     backgroundMusic.currentTime = 0;
-                    backgroundMusic.play();
+                    backgroundMusic.play().catch(e => {
+                        console.log('Ошибка воспроизведения фоновой музыки:', e);
+                    });
                 }
             }, 500);
         }
