@@ -112,6 +112,7 @@
             background: transparent;
             border-radius: 0;
             padding: 0;
+            z-index: 1002; /* Важно: выше пузырьков */
         }
 
         .modal-image {
@@ -130,6 +131,7 @@
             max-width: 400px;
             padding: 30px;
             text-align: center;
+            z-index: 1003; /* Еще выше */
         }
 
         /* Текст диалога */
@@ -155,6 +157,8 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
+            position: relative;
+            z-index: 1004; /* Самый высокий */
         }
 
         .choice-btn {
@@ -168,6 +172,8 @@
             cursor: pointer;
             transition: all 0.3s ease;
             text-align: left;
+            position: relative;
+            z-index: 1005; /* Очень важно для кликабельности */
         }
 
         .choice-btn:hover {
@@ -216,6 +222,8 @@
             max-width: 500px;
             border: 3px solid gold;
             box-shadow: 0 20px 50px rgba(255, 215, 0, 0.3);
+            position: relative;
+            z-index: 2001;
         }
 
         .completion-title {
@@ -243,6 +251,8 @@
             font-size: 1.2em;
             cursor: pointer;
             transition: all 0.3s ease;
+            position: relative;
+            z-index: 2002;
         }
 
         .completion-btn:hover {
@@ -286,8 +296,8 @@
             background: rgba(255, 255, 255, 0.2);
             border-radius: 50%;
             animation: float linear infinite;
-            z-index: 1001;
-            pointer-events: none;
+            z-index: 1001; /* Ниже кнопок */
+            pointer-events: none; /* Важно: не блокируют клики */
         }
 
         @keyframes float {
@@ -303,13 +313,9 @@
             left: 0;
             width: 100%;
             height: 100%;
-            pointer-events: none;
-            z-index: 1001;
+            pointer-events: none; /* Очень важно: пузырьки не блокируют клики */
+            z-index: 1001; /* Ниже модального окна */
             display: none;
-        }
-
-        .modal.active ~ #bubbles-container {
-            display: block;
         }
     </style>
 </head>
@@ -498,6 +504,8 @@
         }
 
         function handleChoice(choice) {
+            console.log('Кнопка нажата!', choice); // Для отладки
+            
             // Анимация пузырьков при выборе ответа
             createClickBubbles();
 
