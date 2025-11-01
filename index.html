@@ -176,7 +176,8 @@
 
     <div class="modal" id="questModal">
         <div class="modal-content">
-            <img src="всплывающее_окно.png" alt="Диалог с эльфом" class="modal-image" onerror="this.style.display='none'">
+            <!-- ИСПРАВЛЕННЫЙ ПУТЬ К ИЗОБРАЖЕНИЮ -->
+            <img src="всплывающее_окно.png" alt="Диалог с эльфом" class="modal-image">
             <div class="dialog-container">
                 <div class="character-name" id="characterName">💧 Водяной Эльф</div>
                 <div class="attempts-display" id="attemptsDisplay"></div>
@@ -187,7 +188,6 @@
     </div>
 
     <script>
-        // ИСПРАВЛЕННАЯ конфигурация - используем ПРОСТОЙ МАССИВ как в тестовом коде
         const dialogues = [
             {
                 character: "💧 Водяной Эльф",
@@ -291,7 +291,7 @@
         const dialogText = document.getElementById('dialogText');
         const choicesContainer = document.getElementById('choicesContainer');
 
-        // Простой запуск КАК В ТЕСТОВОМ КОДЕ
+        // Запуск квеста
         startBtn.addEventListener('click', function() {
             console.log('🚀 Квест запущен!');
             currentStep = 0;
@@ -303,11 +303,11 @@
 
         function showDialogStep(stepIndex) {
             console.log('📝 Показываем шаг:', stepIndex);
-            const step = dialogues[stepIndex]; // ИСПРАВЛЕНО: используем dialogues напрямую
+            const step = dialogues[stepIndex];
             
             characterName.textContent = step.character;
             dialogText.textContent = step.text;
-            attemptsDisplay.textContent = `Попытки: ${attempts} | Правильно: ${correctAnswers}`;
+            attemptsDisplay.textContent = `Попытки: ${attempts} | Правильно: ${correctAnswers}/3`;
             
             choicesContainer.innerHTML = '';
             step.choices.forEach(choice => {
@@ -317,10 +317,12 @@
                     button.classList.add('danger');
                 }
                 button.textContent = choice.text;
-                button.addEventListener('click', function() {
+                
+                button.addEventListener('click', () => {
                     console.log('🖱️ Нажата кнопка:', choice.text);
                     handleChoice(choice);
                 });
+                
                 choicesContainer.appendChild(button);
             });
         }
@@ -355,6 +357,15 @@
                 
             } else if (choice.isCorrect === true) {
                 correctAnswers++;
+                currentStep = choice.next;
+                showDialogStep(choice.next);
+                
+                if (correctAnswers >= 3) {
+                    setTimeout(() => {
+                        completeQuest();
+                    }, 1000);
+                }
+            } else {
                 currentStep = choice.next;
                 showDialogStep(choice.next);
             }
